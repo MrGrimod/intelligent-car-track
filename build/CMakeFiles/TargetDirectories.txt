@@ -1,0 +1,3 @@
+/home/pi/TRACK/track/build/CMakeFiles/edit_cache.dir
+/home/pi/TRACK/track/build/CMakeFiles/rebuild_cache.dir
+/home/pi/TRACK/track/build/CMakeFiles/track.dir
