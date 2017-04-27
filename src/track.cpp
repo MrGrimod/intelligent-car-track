@@ -6,14 +6,19 @@
 
 using namespace std;
 
-struct Object{
-    int UP_u;
-    int UP_m;
-    int UP_l;
-    int SIDE_r;
-    int SIDE_m;
-    int SIDE_l;
+class track_main {
+	public:
+
+
+	private:
+		void react(float x, float y);
+		void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::Rect> &faces);
+		
+
 };
+
+void react(float x, float y);
+void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::Rect> &faces);
 
 void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::Rect> &faces) {
   cv::Mat grayscale;
@@ -28,9 +33,38 @@ void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::
   for (size_t i = 0; i < faces.size(); i++) {
     cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
     cv::ellipse( frame, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, cv::Scalar( 255, 255, 255 ), 2, 8, 0 );
+	float x,y;
+	x=faces[i].x; 
+	y=faces[i].y; 
+	react(x,y);
   }
 }
 
+
+void react(float x, float y){
+	 if(x<100){
+              cout << "left" << endl;
+             
+          } else if (x>500){
+              cout << "right" << endl;
+              
+          } else if(x>100 && x<500){
+              cout << "middle" << endl;
+              
+          }
+          //cout << y << endl;
+
+          if(y<300){
+              cout << "top_M" << endl;
+              
+          } else if (y>300){
+              cout << "down_M" << endl;
+             
+          } else {
+              cout << "midlle_M" << endl;
+              
+          }
+}
 
 int main(int argc, char **argv) {
 
@@ -40,7 +74,8 @@ int main(int argc, char **argv) {
   vector<cv::Rect> faces;
   size_t i = 0; // Used to keep track of iterations in the loop
 
-  string classifier_file = "/home/pi/TRACK/track/data/CASCADES/k.xml";
+  //New Cascade. src: OpenCV
+  string classifier_file = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
 
   // Load face cascade
   cout << "Loading face cascade.." << endl;
@@ -60,61 +95,25 @@ int main(int argc, char **argv) {
   }
 
   // Start capturing
- // cv::namedWindow("Display Window", cv::WINDOW_AUTOSIZE);
-
-  Object o;
 
   for (;;i++) {
     Camera.grab();
     Camera.retrieve(frame);
+	
+    detectFace(frame, face_cascade, faces);
 
-    // Don't call detectFace on every iteration, it's too expensive
+    // Don t call detectFace on every iteration, it's too expensive
     if (i % 6 == 0) {
-      detectFace(frame, face_cascade, faces);
     } else {
       for (size_t i = 0; i < faces.size(); i++) {
-          cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
-          cv::ellipse( frame, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, cv::Scalar( 255, 255, 255 ), 2, 8, 0 );
-          float x,y;
-          x=faces[i].x;
-          y=faces[i].y;
-          if(x<100){
-              o.SIDE_l=1;
-              o.SIDE_r=0;
-              o.SIDE_m=0;
-              cout << "left" << endl;
-             
-          } else if (x>500){
-              o.SIDE_l=0;
-              o.SIDE_r=1;
-              o.SIDE_m=0;
-              cout << "right" << endl;
-              
-          } else if(x>100 && x<500){
-              o.SIDE_l=0;
-              o.SIDE_r=0;
-              o.SIDE_m=1;
-              cout << "middle" << endl;
-              
-          }
-          //cout << y << endl;
-
-          if(y<300){
-              cout << "top_M" << endl;
-              
-          } else if (y>300){
-              cout << "down_M" << endl;
-             
-          } else {
-              cout << "midlle_M" << endl;
-              
-          }
-      }
+        cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
+		cv::ellipse( frame, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, cv::Scalar( 255, 255, 255 ), 2, 8, 0 );
+		float x,y;
+		x=faces[i].x; 
+		y=faces[i].y; 
+		react(x,y);
+		}
     }
-   //cv::imshow("Display Window", frame);
-   //    if (cv::waitKey(1) > 0) {
-      //break;
-   // }
   }
 
   cout << "Stopping camera.." << endl;
