@@ -6,65 +6,10 @@
 
 using namespace std;
 
-class track_main {
-	public:
-
-
-	private:
-		void react(float x, float y);
-		void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::Rect> &faces);
-		
-
-};
-
+//Define methods
 void react(float x, float y);
 void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::Rect> &faces);
 
-void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::Rect> &faces) {
-  cv::Mat grayscale;
-
-  // Convert frame to grayscale, normalize the brightness, and increase the contrast
-  cv::cvtColor(frame, grayscale, cv::COLOR_BGR2GRAY);
-  cv::equalizeHist(grayscale, grayscale);
-
-  // Detect faces
-  face_cascade.detectMultiScale(grayscale, faces, 1.4, 3, 0|CV_HAAR_SCALE_IMAGE, cv::Size(50, 50));
-
-  for (size_t i = 0; i < faces.size(); i++) {
-    cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
-    cv::ellipse( frame, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, cv::Scalar( 255, 255, 255 ), 2, 8, 0 );
-	float x,y;
-	x=faces[i].x; 
-	y=faces[i].y; 
-	react(x,y);
-  }
-}
-
-
-void react(float x, float y){
-	 if(x<100){
-              cout << "left" << endl;
-             
-          } else if (x>500){
-              cout << "right" << endl;
-              
-          } else if(x>100 && x<500){
-              cout << "middle" << endl;
-              
-          }
-          //cout << y << endl;
-
-          if(y<300){
-              cout << "top_M" << endl;
-              
-          } else if (y>300){
-              cout << "down_M" << endl;
-             
-          } else {
-              cout << "midlle_M" << endl;
-              
-          }
-}
 
 int main(int argc, char **argv) {
 
@@ -96,28 +41,78 @@ int main(int argc, char **argv) {
 
   // Start capturing
 
-  for (;;i++) {
-    Camera.grab();
-    Camera.retrieve(frame);
-	
-    detectFace(frame, face_cascade, faces);
+  for (;; i++) {
+	  Camera.grab();
+	  Camera.retrieve(frame);
 
-    // Don t call detectFace on every iteration, it's too expensive
-    if (i % 6 == 0) {
-    } else {
-      for (size_t i = 0; i < faces.size(); i++) {
-        cv::Point center( faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5 );
-		cv::ellipse( frame, center, cv::Size( faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, cv::Scalar( 255, 255, 255 ), 2, 8, 0 );
-		float x,y;
-		x=faces[i].x; 
-		y=faces[i].y; 
-		react(x,y);
-		}
-    }
+	  //Call detect face
+	  detectFace(frame, face_cascade, faces);
+
+	  cout << "Stopping camera.." << endl;
+	  Camera.release();
+	  return 0;
   }
 
-  cout << "Stopping camera.." << endl;
-  Camera.release();
-  return 0;
+
+
+  //Method to detect faces by using Grayscal and Multiscale detection
+  void detectFace(cv::Mat &frame, cv::CascadeClassifier &face_cascade, vector<cv::Rect> &faces) {
+	  cv::Mat grayscale;
+
+	  // Convert frame to grayscale, normalize the brightness, and increase the contrast
+	  cv::cvtColor(frame, grayscale, cv::COLOR_BGR2GRAY);
+	  cv::equalizeHist(grayscale, grayscale);
+
+	  // Detect faces by using .detectMultiScale
+	  face_cascade.detectMultiScale(grayscale, faces, 1.4, 3, 0 | CV_HAAR_SCALE_IMAGE, cv::Size(50, 50));
+
+	  //Loop through face vector
+	  for (size_t i = 0; i < faces.size(); i++) {
+		  //Calculate face center
+		  cv::Point center(faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5);
+
+		  //X and Y axe
+		  float x, y;
+		  x = faces[i].x;
+		  y = faces[i].y;
+
+		  //Call react function just if faces.size < 1
+		  if (!faces.size() > 1) {
+			  react(x, y);
+		  }
+	  }
+  }
+
+  //Method  to react on given
+  void react(float x, float y) {
+	  if (x<100) {
+		  cout << "left" << endl;
+
+	  }
+	  else if (x>500) {
+		  cout << "right" << endl;
+
+	  }
+	  else if (x>100 && x<500) {
+		  cout << "middle" << endl;
+
+	  }
+	  //cout << y << endl;
+
+	  if (y<300) {
+		  cout << "top_M" << endl;
+
+	  }
+	  else if (y>300) {
+		  cout << "down_M" << endl;
+
+	  }
+	  else {
+		  cout << "midlle_M" << endl;
+
+	  }
+  }
+
+
 }
 
